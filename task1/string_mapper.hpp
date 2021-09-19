@@ -38,12 +38,12 @@ struct ClassMapper {
     }
 };
 
-template <class Base, class Target, class M, class ... SubsMappings>
+template <class Base, class Target, class HeadMapping, class ... SubsMappings>
 struct ClassMapper<Base, Target, M, SubsMappings ...> {
     static std::optional<Target> map(const Base& object) {
         try {
-            dynamic_cast<const M::from&>(object);
-            return []<class From, Target target> (Mapping<From, target>) {return target;} (M{});;
+            dynamic_cast<const HeadMapping::from&>(object);
+            return []<class From, Target target> (Mapping<From, target>) {return target;} (HeadMapping{});;
 
         } catch (const std::bad_cast&) {
             return ClassMapper<Base, Target, SubsMappings...>::map(object);
