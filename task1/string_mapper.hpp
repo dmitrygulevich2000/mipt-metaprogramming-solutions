@@ -32,7 +32,12 @@ struct Mapping {
     static constexpr auto target_obj{target};
 };
 
-template <class Base, class Target, class ... Mappings>
+template<class M>
+concept TypeMapping = requires(M m) {
+    []<class From, auto target> (Mapping<From, target> m) {}(m);
+    };
+
+template <class Base, class Target, TypeMapping ... Mappings>
 struct ClassMapper {
     static std::optional<Target> map(const Base& object) {
         return std::nullopt;
