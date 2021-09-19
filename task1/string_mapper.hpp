@@ -2,20 +2,21 @@
 #define MIPT_METAPROGRAMMING_SOLUTIONS_STRING_MAPPER_HPP
 
 #include <algorithm>
+#include <array>
 
 // String
 template<size_t max_length>
 class String {
 public:
-    char data[max_length]{};
+    std::array<char, max_length> data;
     size_t length = 0;
 
     constexpr String(const char* string, std::size_t length): length(length) {
-        std::ranges::copy(string, string + length, data);
+        std::ranges::copy(string, string + length, data.begin());
     }
 
     constexpr operator std::string_view() const {
-        return std::string_view(data, length);
+        return std::string_view(data.begin(), data.begin() + length);
     }
 };
 
@@ -28,7 +29,7 @@ constexpr String<256> operator "" _cstr(const char* s, std::size_t l) {
 template <class From, auto target>
 struct Mapping {
     using from = From;
-//    static const auto target_obj{target};
+    static constexpr auto target_obj{target};
 };
 
 template <class Base, class Target, class ... Mappings>
@@ -41,11 +42,10 @@ struct ClassMapper {
 template <class Base, class Target, class HeadMapping, class ... SubsMappings>
 struct ClassMapper<Base, Target, HeadMapping, SubsMappings ...> {
     static std::optional<Target> map(const Base& object) {
-        try {
-            dynamic_cast<const typename HeadMapping::from&>(object);
-            return []<class From, Target target> (Mapping<From, target>) {return target;} (HeadMapping{});
-
-        } catch (const std::bad_cast&) {
+        auto casted = dynamic_cast<const typename HeadMapping::from*>(&object);
+        if (casted) {
+            return HeadMapping::target_obj;
+        } else {
             return ClassMapper<Base, Target, SubsMappings...>::map(object);
         }
     }
