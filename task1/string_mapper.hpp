@@ -3,6 +3,7 @@
 
 #include <algorithm>
 #include <array>
+#include <concepts>
 
 // String
 template<size_t max_length>
@@ -32,12 +33,15 @@ struct Mapping {
     static constexpr auto target_obj{target};
 };
 
-template<class M>
-concept TypeMapping = requires(M m) {
-    []<class From, auto target> (Mapping<From, target> m) {}(m);
-    };
+template<class M, class Target>
+concept TypeMapping = requires { typename M::from; } && std::same_as<std::remove_const_t<decltype(M::target_obj)>, Target>;
 
-template <class Base, class Target, TypeMapping ... Mappings>
+template <class Base, class Target, class... Mappings>
+requires (
+        (TypeMapping<Mappings, Target> &&
+                requires {std::derived_from<Base, typename Mappings::from>;})
+        && ...
+        )
 struct ClassMapper {
     static std::optional<Target> map(const Base& object) {
         return std::nullopt;
