@@ -384,8 +384,9 @@ struct IsPrimeImpl {
     constexpr static bool Value = !(x % divider == 0) && IsPrimeImpl<x, divider + 1>::Value;
 };
 
-template<int x>
-struct IsPrimeImpl<x, x> {
+template<int x, int divider>
+    requires (divider*divider > x)
+struct IsPrimeImpl<x, divider> {
     constexpr static bool Value = true;
 };
 
@@ -405,6 +406,7 @@ constexpr bool IsPrime = IsPrimeImpl<x, 2>::Value;
 // end primality test
 
 template<VTag V1, VTag V2>
+    requires std::is_integral_v<decltype(V2::Value)>
 struct SecondIsNotPrime { constexpr static bool Value = !IsPrime<V2::Value>; };
 
 template<TypeLists::TypeList TL>
