@@ -323,8 +323,11 @@ namespace TypeLists {
     // end Zip2
 
     // Zip
-    template<TypeList ... TL>
-    struct Zip {
+    template<typename ... TL>
+    struct Zip: Nil {};
+
+    template<TypeSequence ... TL>
+    struct Zip<TL...> {
         using Head = TypeTuples::TTuple<typename TL::Head ...>;
         using Tail = Zip<typename TL::Tail...>;
     };
