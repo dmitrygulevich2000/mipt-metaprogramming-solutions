@@ -35,6 +35,7 @@ struct Mapping {
 
 template<class M, class Target>
 concept TypeMapping = requires { typename M::from; } && std::same_as<std::remove_const_t<decltype(M::target_obj)>, Target>;
+// common_reference_with
 
 template <class Base, class Target, class... Mappings>
 requires (
