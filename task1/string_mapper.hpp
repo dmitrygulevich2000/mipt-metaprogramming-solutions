@@ -37,12 +37,11 @@ template<class M, class Target>
 concept TypeMapping = requires { typename M::from; } && std::same_as<std::remove_const_t<decltype(M::target_obj)>, Target>;
 // common_reference_with
 
-template <class Base, class Target, class... Mappings>
-requires (
-        (TypeMapping<Mappings, Target> &&
-                requires {std::derived_from<Base, typename Mappings::from>;})
-        && ...
-        )
+template<class M, class Target, class Base>
+concept ConsistentMapping = TypeMapping<M, Target> && std::derived_from<typename M::from, Base>;
+
+
+template <class Base, class Target, ConsistentMapping<Target, Base> ... Mappings>
 struct ClassMapper {
     static std::optional<Target> map(const Base& object) {
         return std::nullopt;
