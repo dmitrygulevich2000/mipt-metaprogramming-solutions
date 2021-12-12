@@ -346,6 +346,7 @@ struct FStat {
         >>;
 
     template <template <class...> class AnnotationTemplate>
+            requires has_annotation_template<AnnotationTemplate>
     using FindAnnotation = Head<
             Filter<
                 BindTemplate<SameTemplate, AnnotationTemplate>::template F,
